@@ -1,0 +1,33 @@
+{
+    "name": "tsp/acf-builder",
+    "description": "An Advanced Custom Field Configuration Builder",
+    "require": {
+        "php": "^8.4",
+        "doctrine/inflector": "^2.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.6"
+    },
+    "license": "GPL-2.0+",
+    "authors": [
+        {
+            "name": "Steve Pfisterer",
+            "email": "steve@stoutlogic.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Tsp\\AcfBuilder\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tsp\\AcfBuilder\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": [
+            "./vendor/bin/phpunit"
+        ]
+    }
+}
