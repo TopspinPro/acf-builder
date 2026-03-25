@@ -755,6 +755,10 @@ class FieldsBuilder extends ParentDelegationBuilder implements NamedBuilder
      */
     protected function generateName($name)
     {
+        if ($name === null) {
+            return '';
+        }
+
         return strtolower(str_replace(' ', '_', $name));
     }
 

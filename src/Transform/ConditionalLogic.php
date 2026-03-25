@@ -42,6 +42,10 @@ class ConditionalLogic extends IterativeTransform
      */
     public function transformValue($value)
     {
+        if ($value === null) {
+            return null;
+        }
+
         $conditionalFieldTransform = new ConditionalField($this->getBuilder());
         return $conditionalFieldTransform->transform($value);
     }
