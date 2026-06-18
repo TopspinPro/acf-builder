@@ -82,6 +82,46 @@ class FieldsBuilder extends ParentDelegationBuilder implements NamedBuilder
     }
 
     /**
+     * Enable runtime editor switching for this field group.
+     *
+     * @param string|null $label
+     * @param int|null $order
+     * @return $this
+     */
+    public function enableEditorSwitcher($label = null, $order = null)
+    {
+        return $this->setGroupConfig('editor_switcher', array_filter([
+            'enabled' => true,
+            'label' => $label,
+            'order' => $order,
+        ], function ($value) {
+            return $value !== null;
+        }));
+    }
+
+    /**
+     * Mark this field group's ACF tab preference as resettable on save.
+     *
+     * @param bool $reset
+     * @return $this
+     */
+    public function resetTabsOnSave($reset = true)
+    {
+        return $this->setGroupConfig('reset_tabs_on_save', (bool) $reset);
+    }
+
+    /**
+     * Attach admin visibility metadata for field group runtime integrations.
+     *
+     * @param array $rule
+     * @return $this
+     */
+    public function adminVisibleIf(array $rule)
+    {
+        return $this->setGroupConfig('admin_visibility', $this->normalizeAdminVisibilityRule($rule));
+    }
+
+    /**
      * @return string
      */
     public function getName()
@@ -102,6 +142,34 @@ class FieldsBuilder extends ParentDelegationBuilder implements NamedBuilder
             $key = 'group_'.$key;
         }
         return $key;
+    }
+
+    /**
+     * @param array $rule
+     * @return array
+     */
+    protected function normalizeAdminVisibilityRule(array $rule)
+    {
+        if (isset($rule['visible_if']) && is_array($rule['visible_if'])) {
+            $rule = $rule['visible_if'];
+        }
+
+        $fieldKey = $rule['field_key'] ?? $rule['fieldKey'] ?? '';
+        $fieldName = $rule['field_name'] ?? $rule['fieldName'] ?? '';
+        $operator = $rule['operator'] ?? '==';
+
+        if (!in_array($operator, ['==', '!='], true)) {
+            $operator = '==';
+        }
+
+        return array_filter([
+            'fieldKey' => is_string($fieldKey) ? trim($fieldKey) : '',
+            'fieldName' => is_string($fieldName) ? trim($fieldName) : '',
+            'operator' => $operator,
+            'value' => isset($rule['value']) ? (string) $rule['value'] : '',
+        ], function ($value) {
+            return $value !== '';
+        });
     }
 
     /**

@@ -74,6 +74,33 @@ class FieldsBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertArraySubset($expectedConfig, $builder->build());
     }
 
+    public function testRuntimeGroupMetadataHelpers()
+    {
+        $builder = new FieldsBuilder('my_fields');
+        $builder
+            ->enableEditorSwitcher('Settings', 20)
+            ->resetTabsOnSave()
+            ->adminVisibleIf([
+                'field_key' => 'field_type',
+                'operator' => '!=',
+                'value' => 'hidden',
+            ]);
+
+        $this->assertArraySubset([
+            'editor_switcher' => [
+                'enabled' => true,
+                'label' => 'Settings',
+                'order' => 20,
+            ],
+            'reset_tabs_on_save' => true,
+            'admin_visibility' => [
+                'fieldKey' => 'field_type',
+                'operator' => '!=',
+                'value' => 'hidden',
+            ],
+        ], $builder->build());
+    }
+
     public function testChainableAddField()
     {
         $builder = new FieldsBuilder('fields');

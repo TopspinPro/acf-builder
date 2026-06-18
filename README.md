@@ -117,6 +117,38 @@ That produces the native ACF keys:
 
 The helper only emits ACF config. Supported field types and target compatibility remain ACF rules.
 
+## Runtime Metadata Helpers
+
+Some projects layer admin runtime behavior on top of the built ACF arrays. This package exposes small helpers for those integrations while still only returning configuration arrays.
+
+```php
+use Tsp\AcfBuilder\DependentChoices;
+use Tsp\AcfBuilder\FieldsBuilder;
+
+$course = new FieldsBuilder('course');
+$course
+    ->enableEditorSwitcher('Settings', 20)
+    ->resetTabsOnSave()
+    ->addUser('course_author')
+    ->addSelect('course_author_profile')
+        ->dependentChoices(
+            DependentChoices::select()
+                ->controlledBy('course_author')
+                ->controllerValues([AuthorProfiles::class, 'getAuthorIds'])
+                ->choices([AuthorProfiles::class, 'getChoicesForAuthor'])
+                ->sanitizeControllerAsUserId()
+                ->sanitizeValueAsKey()
+                ->clearWhenControllerEmpty()
+        )
+        ->adminVisibleIf([
+            'field_name' => 'course_author',
+            'operator' => '!=',
+            'value' => '',
+        ]);
+```
+
+The builder does not enqueue scripts or register WordPress hooks. Runtime code remains responsible for consuming custom metadata such as `dependent_choices`, `editor_switcher`, `reset_tabs_on_save`, `admin_visibility`, `min_date`, `max_date`, and `linked_date_field`.
+
 ## Tests
 
 ```bash

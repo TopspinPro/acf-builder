@@ -3,6 +3,7 @@
 namespace Tsp\AcfBuilder\Tests;
 
 use Tsp\AcfBuilder\FieldBuilder;
+use Tsp\AcfBuilder\DependentChoices;
 
 class FieldBuilderTest extends \PHPUnit_Framework_TestCase
 {
@@ -157,6 +158,54 @@ class FieldBuilderTest extends \PHPUnit_Framework_TestCase
                 'prepend' => '$',
                 'default_value' => 'My Default',
             ], $subject->build());
+    }
+
+    public function testDependentChoices()
+    {
+        $subject = new FieldBuilder('profile', 'select');
+        $subject->dependentChoices(
+            DependentChoices::select()
+                ->controlledBy('author')
+                ->choices([self::class, 'resolveChoices'])
+        );
+
+        $this->assertArraySubset([
+            'dependent_choices' => [
+                'field_type' => 'select',
+                'controller_field_name' => 'author',
+                'choices_resolver' => [self::class, 'resolveChoices'],
+            ],
+        ], $subject->build());
+    }
+
+    public function testDatePickerRuntimeHelpers()
+    {
+        $subject = new FieldBuilder('starts_at', 'date_picker');
+        $subject
+            ->minDate('today')
+            ->maxDate('20301231')
+            ->linkedDateField('campaign_start');
+
+        $this->assertArraySubset([
+            'min_date' => 'today',
+            'max_date' => '20301231',
+            'linked_date_field' => 'campaign_start',
+        ], $subject->build());
+    }
+
+    public function testAdminVisibleIf()
+    {
+        $subject = new FieldBuilder('profile', 'select');
+        $subject->adminVisibleIf([
+            'field_key' => 'field_author',
+            'operator' => '!=',
+            'value' => '',
+        ]);
+
+        $this->assertSame(
+            '{"fieldKey":"field_author","operator":"!="}',
+            $subject->getWrapper()['data-tsp-acf-visible-if']
+        );
     }
 
     public function testGetWrapper()

@@ -208,6 +208,65 @@ class FieldBuilder extends ParentDelegationBuilder implements NamedBuilder
     }
 
     /**
+     * Attach dependent choice metadata for a runtime integration to consume.
+     *
+     * @param DependentChoices|array $dependentChoices
+     * @return $this
+     */
+    public function dependentChoices($dependentChoices)
+    {
+        return $this->setConfig('dependent_choices', $dependentChoices);
+    }
+
+    /**
+     * Set a minimum date for date picker runtime integrations.
+     *
+     * @param string $minDate
+     * @return $this
+     */
+    public function minDate($minDate)
+    {
+        return $this->setConfig('min_date', $minDate);
+    }
+
+    /**
+     * Set a maximum date for date picker runtime integrations.
+     *
+     * @param string $maxDate
+     * @return $this
+     */
+    public function maxDate($maxDate)
+    {
+        return $this->setConfig('max_date', $maxDate);
+    }
+
+    /**
+     * Link this date picker's minimum date to another date field.
+     *
+     * @param string $fieldName
+     * @return $this
+     */
+    public function linkedDateField($fieldName)
+    {
+        return $this->setConfig('linked_date_field', $fieldName);
+    }
+
+    /**
+     * Add admin visibility metadata to the field wrapper.
+     *
+     * @param array $rule
+     * @return $this
+     */
+    public function adminVisibleIf(array $rule)
+    {
+        $encodedRule = json_encode($this->normalizeAdminVisibilityRule($rule));
+
+        return $encodedRule
+            ? $this->setAttr('data-tsp-acf-visible-if', $encodedRule)
+            : $this;
+    }
+
+    /**
      * Enable ACF bidirectional relationships on the field.
      *
      * @param string|array $targets
@@ -383,5 +442,33 @@ class FieldBuilder extends ParentDelegationBuilder implements NamedBuilder
     protected function generateName($name)
     {
         return strtolower(str_replace(" ", "_", $name));
+    }
+
+    /**
+     * @param array $rule
+     * @return array
+     */
+    protected function normalizeAdminVisibilityRule(array $rule)
+    {
+        if (isset($rule['visible_if']) && is_array($rule['visible_if'])) {
+            $rule = $rule['visible_if'];
+        }
+
+        $fieldKey = $rule['field_key'] ?? $rule['fieldKey'] ?? '';
+        $fieldName = $rule['field_name'] ?? $rule['fieldName'] ?? '';
+        $operator = $rule['operator'] ?? '==';
+
+        if (!in_array($operator, ['==', '!='], true)) {
+            $operator = '==';
+        }
+
+        return array_filter([
+            'fieldKey' => is_string($fieldKey) ? trim($fieldKey) : '',
+            'fieldName' => is_string($fieldName) ? trim($fieldName) : '',
+            'operator' => $operator,
+            'value' => isset($rule['value']) ? (string) $rule['value'] : '',
+        ], function ($value) {
+            return $value !== '';
+        });
     }
 }
