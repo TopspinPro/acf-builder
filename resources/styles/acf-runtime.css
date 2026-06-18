@@ -1,0 +1,24 @@
+.tsp-acf-field-group-switcher {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 12px;
+  border: 1px solid #c3c4c7;
+  background: #fff;
+}
+
+.tsp-acf-field-group-switcher__label {
+  margin-right: 4px;
+  color: #50575e;
+  font-weight: 600;
+}
+
+.tsp-acf-field-group-switcher__button {
+  min-width: 92px;
+}
+
+.tsp-acf-field-group-switcher-hidden {
+  display: none !important;
+}

@@ -118,7 +118,7 @@ class FieldsBuilder extends ParentDelegationBuilder implements NamedBuilder
      */
     public function adminVisibleIf(array $rule)
     {
-        return $this->setGroupConfig('admin_visibility', $this->normalizeAdminVisibilityRule($rule));
+        return $this->setGroupConfig('admin_visibility', AdminVisibility::normalize($rule) ?? []);
     }
 
     /**
@@ -142,34 +142,6 @@ class FieldsBuilder extends ParentDelegationBuilder implements NamedBuilder
             $key = 'group_'.$key;
         }
         return $key;
-    }
-
-    /**
-     * @param array $rule
-     * @return array
-     */
-    protected function normalizeAdminVisibilityRule(array $rule)
-    {
-        if (isset($rule['visible_if']) && is_array($rule['visible_if'])) {
-            $rule = $rule['visible_if'];
-        }
-
-        $fieldKey = $rule['field_key'] ?? $rule['fieldKey'] ?? '';
-        $fieldName = $rule['field_name'] ?? $rule['fieldName'] ?? '';
-        $operator = $rule['operator'] ?? '==';
-
-        if (!in_array($operator, ['==', '!='], true)) {
-            $operator = '==';
-        }
-
-        return array_filter([
-            'fieldKey' => is_string($fieldKey) ? trim($fieldKey) : '',
-            'fieldName' => is_string($fieldName) ? trim($fieldName) : '',
-            'operator' => $operator,
-            'value' => isset($rule['value']) ? (string) $rule['value'] : '',
-        ], function ($value) {
-            return $value !== '';
-        });
     }
 
     /**

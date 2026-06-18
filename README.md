@@ -117,9 +117,9 @@ That produces the native ACF keys:
 
 The helper only emits ACF config. Supported field types and target compatibility remain ACF rules.
 
-## Runtime Metadata Helpers
+## Runtime Helpers
 
-Some projects layer admin runtime behavior on top of the built ACF arrays. This package exposes small helpers for those integrations while still only returning configuration arrays.
+The builder can emit metadata for reusable ACF admin behavior. Projects can either consume that metadata themselves or register the included runtime modules.
 
 ```php
 use Tsp\AcfBuilder\DependentChoices;
@@ -147,7 +147,31 @@ $course
         ]);
 ```
 
-The builder does not enqueue scripts or register WordPress hooks. Runtime code remains responsible for consuming custom metadata such as `dependent_choices`, `editor_switcher`, `reset_tabs_on_save`, `admin_visibility`, `min_date`, `max_date`, and `linked_date_field`.
+To use the bundled runtime, provide an admin asset adapter and register it from your WordPress app:
+
+```php
+use Tsp\AcfBuilder\Runtime\AcfRuntime;
+use Tsp\AcfBuilder\Runtime\AdminAssets;
+
+class ThemeAdminAssets implements AdminAssets
+{
+    public function enqueue(): void
+    {
+        // Enqueue the admin bundle that imports this package's JS/CSS sources.
+    }
+
+    public function localize(string $objectName, array $data): void
+    {
+        // Localize data onto that admin bundle.
+    }
+}
+
+AcfRuntime::register(new ThemeAdminAssets());
+```
+
+The runtime consumes and strips custom metadata such as `dependent_choices`, `editor_switcher`, `reset_tabs_on_save`, and `admin_visibility` before ACF receives the field group. Date picker metadata (`min_date`, `max_date`, and `linked_date_field`) is copied to field wrapper data attributes during `acf/prepare_field`.
+
+The reusable browser modules live in `resources/scripts` and `resources/styles`. Import them from your project's admin bundle so your existing frontend toolchain controls compilation.
 
 ## Tests
 

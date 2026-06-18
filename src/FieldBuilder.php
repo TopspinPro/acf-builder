@@ -259,11 +259,9 @@ class FieldBuilder extends ParentDelegationBuilder implements NamedBuilder
      */
     public function adminVisibleIf(array $rule)
     {
-        $encodedRule = json_encode($this->normalizeAdminVisibilityRule($rule));
+        $wrapper = AdminVisibility::applyToWrapper($this->getWrapper(), $rule);
 
-        return $encodedRule
-            ? $this->setAttr('data-tsp-acf-visible-if', $encodedRule)
-            : $this;
+        return $this->setWrapper($wrapper);
     }
 
     /**
@@ -444,31 +442,4 @@ class FieldBuilder extends ParentDelegationBuilder implements NamedBuilder
         return strtolower(str_replace(" ", "_", $name));
     }
 
-    /**
-     * @param array $rule
-     * @return array
-     */
-    protected function normalizeAdminVisibilityRule(array $rule)
-    {
-        if (isset($rule['visible_if']) && is_array($rule['visible_if'])) {
-            $rule = $rule['visible_if'];
-        }
-
-        $fieldKey = $rule['field_key'] ?? $rule['fieldKey'] ?? '';
-        $fieldName = $rule['field_name'] ?? $rule['fieldName'] ?? '';
-        $operator = $rule['operator'] ?? '==';
-
-        if (!in_array($operator, ['==', '!='], true)) {
-            $operator = '==';
-        }
-
-        return array_filter([
-            'fieldKey' => is_string($fieldKey) ? trim($fieldKey) : '',
-            'fieldName' => is_string($fieldName) ? trim($fieldName) : '',
-            'operator' => $operator,
-            'value' => isset($rule['value']) ? (string) $rule['value'] : '',
-        ], function ($value) {
-            return $value !== '';
-        });
-    }
 }
