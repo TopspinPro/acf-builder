@@ -389,4 +389,9 @@ class FieldBuilderTest extends \PHPUnit_Framework_TestCase
             'field_featured_author',
         ], $subject->build()['bidirectional_target']);
     }
+
+    public static function resolveChoices()
+    {
+        return ['default' => 'Default'];
+    }
 }
