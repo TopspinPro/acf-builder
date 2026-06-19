@@ -1,4 +1,5 @@
 const CONFIG_NAME = "tsp_acf_field_group_switcher"
+const CHANGE_EVENT = "tsp-acf-field-group-switcher:change"
 const ALL_FIELDS_MODE = "__all"
 const FIELD_INPUT_SELECTOR = "select, input, textarea"
 const FIELD_VISIBILITY_SELECTOR = "[data-tsp-acf-visible-if]"
@@ -300,6 +301,33 @@ const buildSwitcher = (config, modes) => {
   return { buttons, root }
 }
 
+const serializeMode = (mode) => ({
+  key: mode.key,
+  label: mode.label,
+  groups: [...mode.groups],
+})
+
+const dispatchModeChange = (
+  modeKey,
+  mode,
+  availableModes,
+  availableGroupKeys,
+  visibleGroups
+) => {
+  document.dispatchEvent(
+    new CustomEvent(CHANGE_EVENT, {
+      detail: {
+        activeMode: modeKey,
+        activeLabel: mode?.label ?? "",
+        visibleGroups: [...visibleGroups],
+        availableGroups: [...availableGroupKeys],
+        availableModes: availableModes.map(serializeMode),
+        allFieldsMode: ALL_FIELDS_MODE,
+      },
+    })
+  )
+}
+
 const applyMode = (
   modeKey,
   modes,
@@ -346,6 +374,7 @@ const applyMode = (
   root.hidden = availableModes.length < 2
   root.classList.toggle("tsp-acf-field-group-switcher-hidden", availableModes.length < 2)
   root.dataset.mode = modeKey
+  dispatchModeChange(modeKey, mode, availableModes, availableGroupKeys, visibleGroups)
 }
 
 export default function initAcfFieldGroupSwitcher() {
