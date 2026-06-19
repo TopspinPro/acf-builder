@@ -157,7 +157,8 @@ class ThemeAdminAssets implements AdminAssets
 {
     public function enqueue(): void
     {
-        // Enqueue the admin bundle that imports this package's JS/CSS sources.
+        // Enqueue resources/scripts/acf-runtime.js as a module script.
+        // Enqueue resources/styles/acf-runtime.css as a stylesheet.
     }
 
     public function localize(string $objectName, array $data): void
@@ -171,7 +172,7 @@ AcfRuntime::register(new ThemeAdminAssets());
 
 The runtime consumes and strips custom metadata such as `dependent_choices`, `editor_switcher`, `reset_tabs_on_save`, and `admin_visibility` before ACF receives the field group. Date picker metadata (`min_date`, `max_date`, and `linked_date_field`) is copied to field wrapper data attributes during `acf/prepare_field`.
 
-The reusable browser modules live in `resources/scripts` and `resources/styles`. Import them from your project's admin bundle so your existing frontend toolchain controls compilation.
+The reusable browser modules live in `resources/scripts`, with `resources/scripts/acf-runtime.js` provided as the package-owned browser entry. The runtime stylesheet lives in `resources/styles/acf-runtime.css`.
 
 ## Tests
 
